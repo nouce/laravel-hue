@@ -1,0 +1,20 @@
+{
+    "name": "fyr/philips-hue",
+    "description": "Provides PHP wrapper around the Philips Hue API",
+    "license": "MIT",
+    "require": {
+        "spatie/laravel-ray": "^1.19"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fyr\\PhilipsHue\\" : "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers" : [
+                "Fyr\\PhilipsHue\\PhilipsHueServiceProvider"
+            ]
+        }
+    }
+}
