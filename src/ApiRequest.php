@@ -47,7 +47,7 @@ class ApiRequest {
         {
             $response->throw(function ($response, $e){
                 $stream = Utils::streamFor($response->getBody());
-                dd($stream->getContents());
+                //dd($stream->getContents());
                 return json_decode($stream->getContents());
             });
         }
@@ -66,7 +66,7 @@ class ApiRequest {
         {
             $response->throw(function ($response, $e){
                 $stream = Utils::streamFor($response->getBody());
-                dd($stream->getContents());
+                //dd($stream->getContents());
                 return json_decode($stream->getContents());
             });
         }
@@ -75,7 +75,7 @@ class ApiRequest {
         {
             $response->throw(function ($response, $e){
                 $stream = Utils::streamFor($response->getBody());
-                dd($stream->getContents());
+                //dd($stream->getContents());
                 return json_decode($stream->getContents());
             });
         }
@@ -97,7 +97,7 @@ class ApiRequest {
         {
             $response->throw(function ($response, $e){
                 $stream = Utils::streamFor($response->getBody());
-                dd($stream->getContents());
+                //dd($stream->getContents());
                 return json_decode($stream->getContents());
             });
         }
@@ -106,7 +106,7 @@ class ApiRequest {
         {
             $response->throw(function ($response, $e){
                 $stream = Utils::streamFor($response->getBody());
-                dd($stream->getContents());
+                //dd($stream->getContents());
                 return json_decode($stream->getContents());
             });
         }

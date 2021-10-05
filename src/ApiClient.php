@@ -3,6 +3,7 @@
 namespace Fyr\PhilipsHue;
 
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Psr7\Utils;
 
 use Fyr\PhilipsHue\Apis\Lights;
 
@@ -29,11 +30,18 @@ class ApiClient {
     {
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . self::$user->philips_hue_access_token
-        ])->get('https://api.meethue.com/v2/api');
+        ])->put('https://api.meethue.com/bridge/0/config', [
+            'linkbutton' => true
+        ]);
 
-        if($response->getStatusCode() === 401)
+        $jsonResponse = $response->json();
+
+        if(isset($jsonResponse['fault']['detail']))
         {
-            return false;
+            if($jsonResponse['fault']['detail']['errorcode'] == 'keymanagement.service.access_token_expired')
+            {
+                return false;
+            }
         }
 
         return true;
@@ -41,12 +49,8 @@ class ApiClient {
 
     private function refreshAccessToken()
     {
-        $digestHeaderResponse = Http::withHeaders([
-            'Content-Type' => 'application/x-www-form-urlencoded',
-        ])->asForm()->post('https://api.meethue.com/v2/oauth2/token', [
-            'grant_type' => 'refresh_token'
-        ]);
-        
+        $digestHeaderResponse = Http::asForm()->post('https://api.meethue.com/v2/oauth2/token?grant_type=refresh_token');
+
         $realm = 'oauth2_client@api.meethue.com';
         $digest = explode(',', $digestHeaderResponse->header('WWW-Authenticate'));
         $nonce = str_replace('"', '', str_replace('nonce="', '', $digest[1]));
@@ -54,16 +58,17 @@ class ApiClient {
         $hash2 = md5('POST:/v2/oauth2/token');
         $calculatedResponse = md5($hash1 . ':' . $nonce . ':' . $hash2);
 
-        dd('Digest username="' . env("HUE_CLIENT_ID") . '", realm="oauth2_client@api.meethue.com", nonce="' . $nonce . '", uri="/v2/oauth2/token", response="' . $calculatedResponse . '"');
+        //dd('Digest username="' . env("HUE_CLIENT_ID") . '", realm="oauth2_client@api.meethue.com", nonce="' . $nonce . '", uri="/v2/oauth2/token", response="' . $calculatedResponse . '"');
 
         $response = Http::withDigestAuth(env("HUE_CLIENT_ID"), 'Digest username="' . env("HUE_CLIENT_ID") . '", realm="oauth2_client@api.meethue.com", nonce="' . $nonce . '", uri="/v2/oauth2/token", response="' . $calculatedResponse . '"')
         ->asForm()->post('https://api.meethue.com/v2/oauth2/token', [
             'grant_type' => 'refresh_token',
+            'refresh_token' => self::$user->philips_hue_refresh_token
         ]);
 
         $data = $response->json();
 
-        $this->user->update([
+        self::$user->update([
             'philips_hue_access_token' => $data['access_token'],
             'philips_hue_refresh_token' => $data['refresh_token']
         ]);
@@ -76,6 +81,7 @@ class ApiClient {
         ])->put('https://api.meethue.com/bridge/0/config', [
             'linkbutton' => true
         ]);
+
         if($bridgeResponse->failed())
         {
             return false;
@@ -98,6 +104,9 @@ class ApiClient {
 
     public function lights()
     {
+        if(!$this->checkAccessToken()){
+            $this->refreshAccessToken();
+        }
         return new Lights($this->apiRequest);
     }
 }
