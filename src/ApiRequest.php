@@ -45,11 +45,10 @@ class ApiRequest {
 
         if($response->failed())
         {
-            $response->throw(function ($response, $e){
-                $stream = Utils::streamFor($response->getBody());
-                //dd($stream->getContents());
-                return json_decode($stream->getContents());
-            });
+            $stream = Utils::streamFor($response->getBody());
+            $details = json_decode($stream->getContents());
+            
+            return $details;
         }
         return json_decode($response->body());
     }
@@ -62,25 +61,13 @@ class ApiRequest {
                         'debug' => false,
                     ])->post($this->url . $endpoint, $params);
 
-        if($response->serverError())
+        if($response->failed())
         {
-            $response->throw(function ($response, $e){
-                $stream = Utils::streamFor($response->getBody());
-                //dd($stream->getContents());
-                return json_decode($stream->getContents());
-            });
+            $stream = Utils::streamFor($response->getBody());
+            $details = json_decode($stream->getContents());
+            
+            return $details;
         }
-
-        if($response->clientError())
-        {
-            $response->throw(function ($response, $e){
-                $stream = Utils::streamFor($response->getBody());
-                //dd($stream->getContents());
-                return json_decode($stream->getContents());
-            });
-        }
-
-        $response->throw()->json();
 
         return json_decode($response->body());
     }
