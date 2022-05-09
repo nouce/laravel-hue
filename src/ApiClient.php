@@ -26,7 +26,7 @@ class ApiClient {
         $this->apiRequest = new ApiRequest(self::$user);
     }
 
-    private function checkAccessToken()
+    protected function checkAccessToken()
     {
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . self::$user->philips_hue_access_token
@@ -47,7 +47,7 @@ class ApiClient {
         return true;
     }
 
-    private function refreshAccessToken()
+    protected function refreshAccessToken()
     {
         $digestHeaderResponse = Http::asForm()->post('https://api.meethue.com/v2/oauth2/token?grant_type=refresh_token');
 
