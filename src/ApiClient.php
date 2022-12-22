@@ -40,10 +40,15 @@ class ApiClient
                'linkbutton' => true
           ]);
 
-          $jsonResponse = $response->json();
-          ray($jsonResponse);
-          if (isset($jsonResponse['fault']['detail'])) {
-               if ($jsonResponse['fault']['detail']['errorcode'] == 'keymanagement.service.access_token_expired') {
+          $response = $response->object();
+
+          if(isset($response->fault))
+          {
+               if(in_array($response->fault->detail->errorcode, [
+                    'keymanagement.service.access_token_expired',
+                    'keymanagement.service.invalid_access_token'
+               ]))
+               {
                     return false;
                }
           }
