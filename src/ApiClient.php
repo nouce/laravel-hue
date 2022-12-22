@@ -16,9 +16,7 @@ class ApiClient
      {
           self::$user = $user;
 
-          if (!$this->checkAccessToken()) {
-               $this->refreshAccessToken();
-          }
+          $this->checkAccessToken();
 
           if (!self::$user->philips_hue_username) {
                $this->generateUsername();
@@ -27,12 +25,15 @@ class ApiClient
           $this->apiRequest = new ApiRequest(self::$user);
      }
 
-     public function hasValidAccessToken()
+     public function checkAccessToken()
      {
-          return $this->checkAccessToken();
+          if(!$this->hasValidAccessToken())
+          {
+               $this->refreshAccessToken();
+          }
      }
 
-     protected function checkAccessToken()
+     protected function hasValidAccessToken()
      {
           $response = Http::withHeaders([
                'Authorization' => 'Bearer ' . self::$user->philips_hue_access_token
@@ -66,8 +67,6 @@ class ApiClient
           $hash1 = md5(env('HUE_CLIENT_ID') . ':' . $realm . ':' . env('HUE_CLIENT_SECRET'));
           $hash2 = md5('POST:/v2/oauth2/token');
           $calculatedResponse = md5($hash1 . ':' . $nonce . ':' . $hash2);
-
-          //dd('Digest username="' . env("HUE_CLIENT_ID") . '", realm="oauth2_client@api.meethue.com", nonce="' . $nonce . '", uri="/v2/oauth2/token", response="' . $calculatedResponse . '"');
 
           $response = Http::withHeaders([
                     'Authorization' => 'Digest username="' . env("HUE_CLIENT_ID") . '", realm="oauth2_client@api.meethue.com", nonce="' . $nonce . '", uri="/v2/oauth2/token", response="' . $calculatedResponse . '"'
@@ -116,9 +115,7 @@ class ApiClient
 
      public function lights()
      {
-          if (!$this->checkAccessToken()) {
-               $this->refreshAccessToken();
-          }
+          $this->checkAccessToken();
           return new Lights($this->apiRequest);
      }
 }
