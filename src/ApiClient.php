@@ -15,7 +15,6 @@ class ApiClient
      public function __construct($user)
      {
           self::$user = $user;
-
           $this->checkAccessToken();
 
           if (!self::$user->philips_hue_username) {

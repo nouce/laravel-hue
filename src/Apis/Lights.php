@@ -12,9 +12,6 @@ class Lights extends ApiClient
 
      public function __construct($client)
      {
-          if (!$this->checkAccessToken()) {
-               $this->refreshAccessToken();
-          }
           $this->client = $client;
      }
 
