@@ -60,7 +60,7 @@ class Lights extends ApiClient
 
      public function setColor($id, $color)
      {
-          $light = optional($this->get($id))->state->on;
+          $light = $this->get($id);
 
           if (!$light) return false;
 
