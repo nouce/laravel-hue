@@ -64,12 +64,12 @@ class ApiClient
           $realm = 'oauth2_client@api.meethue.com';
           $digest = explode(',', $digestHeaderResponse->header('WWW-Authenticate'));
           $nonce = str_replace('"', '', str_replace('nonce="', '', $digest[1]));
-          $hash1 = md5(env('HUE_CLIENT_ID') . ':' . $realm . ':' . env('HUE_CLIENT_SECRET'));
+          $hash1 = md5(config('services.philipsHue.key') . ':' . $realm . ':' . config('services.philipsHue.secret'));
           $hash2 = md5('POST:/v2/oauth2/token');
           $calculatedResponse = md5($hash1 . ':' . $nonce . ':' . $hash2);
 
           $response = Http::withHeaders([
-                    'Authorization' => 'Digest username="' . env("HUE_CLIENT_ID") . '", realm="oauth2_client@api.meethue.com", nonce="' . $nonce . '", uri="/v2/oauth2/token", response="' . $calculatedResponse . '"'
+                    'Authorization' => 'Digest username="' . config('services.philipsHue.key') . '", realm="oauth2_client@api.meethue.com", nonce="' . $nonce . '", uri="/v2/oauth2/token", response="' . $calculatedResponse . '"'
                ])
                ->asForm()->post('https://api.meethue.com/v2/oauth2/token', [
                     'grant_type' => 'refresh_token',
